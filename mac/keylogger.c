@@ -13,7 +13,6 @@ void setupLogFile();
 void startListen();
 CGEventRef callback(CGEventTapProxy proxy, CGEventType type, CGEventRef event, void * userinfo);
 
-char * sysKeyToChar(int code);
 char * mapKeyCodes(int code);
 
 int main(int argc, char * argv[]) {
